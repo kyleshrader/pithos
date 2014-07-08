@@ -441,8 +441,8 @@ class Song(object):
         stored_dirs = os.path.join(self.get_music_dir(), self.get_folders_path())
         if not os.path.exists(stored_dirs):
             os.makedirs(stored_dirs)
-            if not os.path.isfile(self.get_stored_filename()):
-                shutil.copy(self.get_temp_filename(), self.get_stored_filename())
+        if not os.path.isfile(self.get_stored_filename()):
+            shutil.copy(self.get_temp_filename(), self.get_stored_filename())
         self.delete_temp()
 
     def make_safe(self, filename):

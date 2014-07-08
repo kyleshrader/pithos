@@ -269,6 +269,7 @@ class Station(object):
         songs = []
         for i in playlist['items']:
             if 'songName' in i: # check for ads
+                i['stationName'] = self.name
                 songs.append(Song(self.pandora, i))
         return songs
 
@@ -304,6 +305,7 @@ class Song(object):
         self.songDetailURL = d['songDetailUrl']
         self.songExplorerUrl = d['songExplorerUrl']
         self.artRadio = d['albumArtUrl']
+        self.stationName = d['stationName']
 
         self.bitrate = None
         self.is_ad = None  # None = we haven't checked, otherwise True/False
@@ -340,10 +342,14 @@ class Song(object):
     def get_song_filename(self):
         return self.make_safe(self.songName + '.mp4')
 
+    def get_station_folder(self):
+        return self.make_safe(self.stationName)
+
     def get_folders_path(self):
+        station_dir = self.get_station_folder()
         artist_dir = self.get_artist_folder()
         album_dir = self.get_album_folder()
-        return os.path.join(artist_dir, album_dir)
+        return os.path.join(station_dir, artist_dir, album_dir)
 
     def get_temp_dir(self):
         global temp_dir
@@ -365,8 +371,10 @@ class Song(object):
     def download(self):
         # If stored, return stored filename
         stored_filename = self.get_stored_filename()
-        if os.path.exists(stored_filename):
+        if os.path.isfile(stored_filename):
             self.file_name = stored_filename
+            self.downloaded = True
+            return
         # Create required folders if not already created
         folders_path = os.path.join(self.get_temp_dir(),self.get_folders_path())
         if not os.path.exists(folders_path):
@@ -407,25 +415,38 @@ class Song(object):
         sys.stdout.flush()
         sys.stdout.write('\x1b[2K')
 
-    def delete(self):
-        # Check that the artist, album, song name doesn't begin with ~ or /
-        # Check that artist/album only contains one track
-         # If not, remove the song
-         # Else, check that the artist only contains one folder
-          # If not, remove the album folder recursively
-          # Else, remove the artist folder recursively
-        # TODO
-        pass
+    def delete_temp(self):
+        # Delete the file
+        file_name = self.get_temp_filename()
+        if os.path.isfile(file_name):
+            os.remove(file_name)
+        # Delete the album folder if empty
+        album_folder = os.path.join(self.get_temp_dir(), self.get_station_folder(), self.get_artist_folder(), self.get_album_folder())
+        if os.path.exists(album_folder):
+            if not os.listdir(album_folder):
+                os.rmdir(album_folder)
+        # Delete the artist folder if empty
+        artist_folder = os.path.join(self.get_temp_dir(), self.get_station_folder(), self.get_artist_folder())
+        if os.path.exists(artist_folder):
+            if not os.listdir(artist_folder):
+                os.rmdir(artist_folder)
+        # Delete the station folder if empty
+        station_folder = os.path.join(self.get_temp_dir(), self.get_station_folder())
+        if os.path.exists(station_folder):
+            if not os.listdir(station_folder):
+                os.rmdir(station_folder)
 
     def store(self):
         # Move from temp to music
         stored_dirs = os.path.join(self.get_music_dir(), self.get_folders_path())
         if not os.path.exists(stored_dirs):
             os.makedirs(stored_dirs)
-        shutil.copy(self.get_temp_filename(), self.get_stored_filename())
+            if not os.path.isfile(self.get_stored_filename()):
+                shutil.copy(self.get_temp_filename(), self.get_stored_filename())
+        self.delete_temp()
 
     def make_safe(self, filename):
-        valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+        valid_chars = "&+-_.() %s%s" % (string.ascii_letters, string.digits)
         return ''.join(c for c in filename if c in valid_chars)
 
     @property

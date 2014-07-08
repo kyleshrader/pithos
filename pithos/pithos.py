@@ -450,8 +450,8 @@ class PithosWindow(Gtk.ApplicationWindow):
             return self.next_song()
 
         logging.info("Starting song: index = %i"%(song_index))
-        self.buffer_percent = 0
-        self.song_started = False
+        self.buffer_percent = 100
+        self.song_started = True
         self.player.set_property("uri", self.current_song.audioUrl)
         self.play()
         self.playcount += 1

@@ -893,7 +893,7 @@ class PithosWindow(Gtk.ApplicationWindow):
 
             if event.button == 1 and event.type == Gdk.EventType._2BUTTON_PRESS:
                 logging.info("Double clicked on song %s", self.selected_song().index)
-                if self.selected_song().index <= self.current_song_index:
+                if self.selected_song().index == self.current_song_index:
                     return False
                 self.start_song(self.selected_song().index)
 

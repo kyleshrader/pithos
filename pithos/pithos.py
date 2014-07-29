@@ -609,8 +609,8 @@ class PithosWindow(Gtk.ApplicationWindow):
         self.waiting_for_playlist = False
         if not reconnecting:
             self.stop()
-            self.current_song_index = None
-            self.songs_model.clear()
+            #self.current_song_index = None
+            #self.songs_model.clear()
         logging.info("Selecting station %s; total = %i" % (station.id, len(self.stations_model)))
         self.current_station_id = station.id
         self.current_station = station

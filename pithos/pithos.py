@@ -441,7 +441,7 @@ class PithosWindow(Gtk.ApplicationWindow):
         if prev:
             self.update_song_row(prev)
 
-        if not self.current_song.is_still_valid():
+        if not self.current_song.is_still_valid() and not self.current_song.downloaded:
             self.current_song.message = "Playlist expired"
             self.update_song_row()
             return self.next_song()

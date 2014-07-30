@@ -678,7 +678,7 @@ class PithosWindow(Gtk.ApplicationWindow):
                     self.update_song_row()
                     if not hasattr(self, 'skips'):
                         self.skips = 0
-                    if self.skips < 3:
+                    if self.skips < 2:
                         self.skips+=1
                         self.next_song()
                     else:

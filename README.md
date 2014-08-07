@@ -18,3 +18,17 @@ Random notes:
 extra requirements:
 python3-setuptools python3-dbus python3-gobject python3-pylast gstreamer1 gstreamer1-plugins-good gstreamer1-plugins-bad gtk3 git (optionally libnotify appindicator3 keybinder3) 
 
+Installation
+------
+```
+git clone https://github.com/kylekinkade/pithos.git
+cd pithos
+python3 bootstrap.py
+bin/buildout
+```
+To run, use:
+```
+bin/pithos
+```
+
+Let me know if these instructions don't work for you.

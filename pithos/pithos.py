@@ -509,7 +509,7 @@ class PithosWindow(Gtk.ApplicationWindow):
 
     def user_playpause(self, *ignore):
         self.playpause_notify()
-        
+
     def playpause(self, *ignore):
         logging.info("playpause")
         if self.playing:
@@ -638,7 +638,7 @@ class PithosWindow(Gtk.ApplicationWindow):
 
     def gst_tag_handler(self, tag_info):
         def handler(_x, tag, _y):
-            # An exhaustive list of tags is available at 
+            # An exhaustive list of tags is available at
             # https://developer.gnome.org/gstreamer/stable/gstreamer-GstTagList.html
             # but Pandora seems to only use those
             if tag == 'datetime':
@@ -680,10 +680,10 @@ class PithosWindow(Gtk.ApplicationWindow):
                         self.skips = 0
                     if self.skips < 2:
                         self.skips+=1
+                        self.current_song.delete_temp()
                         self.next_song()
                     else:
                         self.skips = 0
-                    self.current_song.delete_temp()
                 else:
                     self.skips = 0
                     logging.info('Not an Ad..')
@@ -700,7 +700,7 @@ class PithosWindow(Gtk.ApplicationWindow):
         # Note that applications should keep/set the pipeline in the PAUSED state when a BUFFERING
         # message is received with a buffer percent value < 100 and set the pipeline back to PLAYING
         # state when a BUFFERING message with a value of 100 percent is received.
-        
+
         # 100% doesn't mean the entire song is downloaded, but it does mean that it's safe to play.
         # trying to play before 100% will cause stuttering.
         percent = message.parse_buffering()

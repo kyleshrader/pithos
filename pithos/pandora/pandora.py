@@ -381,18 +381,27 @@ class Song(object):
             os.makedirs(folders_path)
         # Get URL to download from
         audiourl = self.get_download_url()
+        arturl = self.artRadio
         # Get the temp file path
         temp_filename = self.get_temp_filename()
+        temp_art_file = os.path.join(folders_path, 'cover_art.jpg')
         # Download song in seperate process
         def runInThread():
             try:
+                if arturl:
+                    album_art, headers = urllib.request.urlretrieve(arturl, temp_art_file)
+                else:
+                    print("No album art found for " + os.path.join(self.get_folders_path(), self.get_song_filename()))
                 tmp_filename, headers = urllib.request.urlretrieve(audiourl, temp_filename, reporthook=self.dlProgress)
             except Exception:
                 import traceback
                 print(traceback.format_exc())
                 print('Download Failed\n')
+                self.art_name = None
                 self.file_name = None
             else:
+                if arturl:
+                    self.art_name = album_art
                 self.file_name = tmp_filename
             return
         thread = threading.Thread(target=runInThread)
@@ -418,8 +427,11 @@ class Song(object):
     def delete_temp(self):
         # Delete the file
         file_name = self.get_temp_filename()
+        art_name = os.path.join(self.get_temp_dir(), self.get_folders_path(), 'cover_art.jpg')
         if os.path.isfile(file_name):
             os.remove(file_name)
+        if os.path.isfile(art_name):
+            os.remove(art_name)
         # Delete the album folder if empty
         album_folder = os.path.join(self.get_temp_dir(), self.get_station_folder(), self.get_artist_folder(), self.get_album_folder())
         if os.path.exists(album_folder):
@@ -443,6 +455,11 @@ class Song(object):
             os.makedirs(stored_dirs)
         if not os.path.isfile(self.get_stored_filename()):
             shutil.copy(self.get_temp_filename(), self.get_stored_filename())
+        tmp_art_name = os.path.join(self.get_temp_dir(), self.get_folders_path(), 'cover_art.jpg')
+        stored_art_name = os.path.join(self.get_music_dir(), self.get_folders_path(), 'cover_art.jpg')
+        if not os.path.isfile(stored_art_name) and os.path.isfile(tmp_art_name):
+            shutil.copy(tmp_art_name, stored_art_name)
+        self.file_name = self.get_stored_filename()
         self.delete_temp()
 
     def make_safe(self, filename):
